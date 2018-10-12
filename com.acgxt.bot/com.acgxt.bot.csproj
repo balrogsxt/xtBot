@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B27228F1-A476-486A-A669-21CCA83175E9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>com.acgxt.bot</RootNamespace>
+    <AssemblyName>com.acgxt.bot</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AipSdk, Version=3.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Baidu.AI.3.6.3\lib\net45\AipSdk.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac, Version=4.8.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MediatR, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediatR.3.0.1\lib\net45\MediatR.dll</HintPath>
+    </Reference>
+    <Reference Include="MessagePack, Version=1.7.3.4, Culture=neutral, PublicKeyToken=b4a0369545f0a1be, processorArchitecture=MSIL">
+      <HintPath>..\packages\MessagePack.1.7.3.4\lib\net45\MessagePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Newbe.Mahua, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newbe.Mahua.1.10.0\lib\net452\Newbe.Mahua.dll</HintPath>
+    </Reference>
+    <Reference Include="Newbe.Mahua.PluginLoader, Version=1.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newbe.Mahua.PluginLoader.1.10.0\lib\net452\Newbe.Mahua.PluginLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="ReachFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite, Version=1.0.108.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.108.0\lib\net451\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.108.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.108.0\lib\net451\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.108.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.108.0\lib\net451\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.3.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MahuaEvents\GroupJoiningInvitationReceivedMahuaEvent.cs" />
+    <Compile Include="MahuaEvents\GroupJoiningRequestReceivedMahuaEvent.cs" />
+    <Compile Include="MahuaEvents\GroupMemberIncreasedMahuaEvent.cs" />
+    <Compile Include="MahuaEvents\GroupMessageEvent.cs" />
+    <Compile Include="MahuaEvents\InitializationMahuaEvent.cs" />
+    <Compile Include="MahuaEvents\MahuaMenuClickedMahuaEvent.cs" />
+    <Compile Include="MahuaEvents\PluginEnabledMahuaEvent.cs" />
+    <Compile Include="MahuaModule.cs" />
+    <Compile Include="MyMenuProvider.cs" />
+    <Compile Include="PluginInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Conf.cs" />
+    <Compile Include="Utils\CQ.cs" />
+    <Compile Include="Utils\CQAPI.cs" />
+    <Compile Include="Utils\Data.cs" />
+    <Compile Include="Utils\XtException\ReReplyException.cs" />
+    <Compile Include="Utils\GroupData.cs" />
+    <Compile Include="Utils\GroupUser.cs" />
+    <Compile Include="Utils\Log.cs" />
+    <Compile Include="Utils\LogType.cs" />
+    <Compile Include="Utils\Server\UdpServer.cs" />
+    <Compile Include="Utils\Util.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="build.bat" />
+    <None Include="build.ps1" />
+    <None Include="buildTools\packages.config" />
+    <None Include="MahuaApis\readme.md" />
+    <None Include="MahuaEvents\readme.md" />
+    <None Include="NewbeLibs\Framework\NLog.config" />
+    <None Include="NewbeLibs\Platform\CQP\Content\Newbe.Mahua.CQP.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="buildTools\7z.exe" />
+    <Content Include="buildTools\nuget.exe" />
+    <Content Include="NewbeLibs\Framework\Autofac.dll" />
+    <Content Include="NewbeLibs\Framework\Extensions\Administration\Newbe.Mahua.Administration.WPF.dll" />
+    <Content Include="NewbeLibs\Framework\Extensions\Administration\Newbe.Mahua.Administration.WPF.pdb" />
+    <Content Include="NewbeLibs\Framework\MediatR.dll" />
+    <Content Include="NewbeLibs\Framework\MessagePack.dll" />
+    <Content Include="NewbeLibs\Framework\Newbe.Mahua.dll" />
+    <Content Include="NewbeLibs\Framework\Newbe.Mahua.pdb" />
+    <Content Include="NewbeLibs\Framework\Newbe.Mahua.PluginLoader.dll" />
+    <Content Include="NewbeLibs\Framework\Newbe.Mahua.PluginLoader.pdb" />
+    <Content Include="NewbeLibs\Framework\Newbe.Mahua.xml" />
+    <Content Include="NewbeLibs\Framework\NLog.dll" />
+    <Content Include="NewbeLibs\Framework\System.Threading.Tasks.Extensions.dll" />
+    <Content Include="NewbeLibs\Framework\System.ValueTuple.dll" />
+    <Content Include="NewbeLibs\Platform\Amanda\CLR\Newbe.Mahua.Amanda.dll" />
+    <Content Include="NewbeLibs\Platform\Amanda\CLR\Newbe.Mahua.Amanda.Native.dll" />
+    <Content Include="NewbeLibs\Platform\Amanda\CLR\Newbe.Mahua.Amanda.Native.pdb" />
+    <Content Include="NewbeLibs\Platform\Amanda\CLR\Newbe.Mahua.Amanda.pdb" />
+    <Content Include="NewbeLibs\Platform\Amanda\Native\Newbe.Mahua.Amanda.Native.dll" />
+    <Content Include="NewbeLibs\Platform\CQP\CLR\Newbe.Mahua.CQP.dll" />
+    <Content Include="NewbeLibs\Platform\CQP\CLR\Newbe.Mahua.CQP.Native.dll" />
+    <Content Include="NewbeLibs\Platform\CQP\CLR\Newbe.Mahua.CQP.Native.pdb" />
+    <Content Include="NewbeLibs\Platform\CQP\CLR\Newbe.Mahua.CQP.pdb" />
+    <Content Include="NewbeLibs\Platform\CQP\Native\Newbe.Mahua.CQP.Native.dll" />
+    <Content Include="NewbeLibs\Platform\MPQ\CLR\Newbe.Mahua.MPQ.dll" />
+    <Content Include="NewbeLibs\Platform\MPQ\CLR\Newbe.Mahua.MPQ.Native.dll" />
+    <Content Include="NewbeLibs\Platform\MPQ\CLR\Newbe.Mahua.MPQ.Native.pdb" />
+    <Content Include="NewbeLibs\Platform\MPQ\CLR\Newbe.Mahua.MPQ.pdb" />
+    <Content Include="NewbeLibs\Platform\MPQ\Native\Newbe.Mahua.MPQ.Native.dll" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.108.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.108.0\build\net451\System.Data.SQLite.Core.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>此项目引用这台计算机上缺少的 NuGet 程序包。使用 NuGet 程序包还原可下载这些程序包。有关详细信息，请参阅 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.108.0\build\net451\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.108.0\build\net451\System.Data.SQLite.Core.targets'))" />
+  </Target>
+</Project>
