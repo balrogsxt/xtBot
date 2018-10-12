@@ -538,7 +538,18 @@ namespace com.acgxt.bot.MahuaEvents {
 
             if (savemsg==1) {
                 //储存消息到数据库
-                string apiUrl = "https://api.acgxt.com/cqp/addmsg?token=6e13ba30594b6785d6897ba34f946362";
+                //获取token
+                object tokenV = Conf.getConfig("global.config", "token");
+                if (tokenV == null) {
+                    Log.addLog("SAVE_MSG","验证失败:token服务端未设定,无法使用云储存");
+                    return;
+                }
+
+
+                string token = tokenV.ToString();
+
+
+                string apiUrl = "https://api.acgxt.com/cqp/addmsg?token="+ token;
                 string param = String.Format("message={0}&msgid={1}&qq={2}&group={3}", this.msg,0, this.fromQQ, this.fromGroup);
                 string result = Util.httpRequest(apiUrl, "POST", param, "UTF-8", 10000);
             }
