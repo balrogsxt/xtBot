@@ -11,6 +11,19 @@ namespace com.acgxt.bot.Utils {
         private static string liveDir = Directory.GetCurrentDirectory();
         private static string dataDir = Path.Combine(liveDir, "xtlogs");
 
+
+
+        public static void info(string logs) {
+            Log.addLog("INFO", "NONE", "NONE", logs);
+        }
+        public static void warning(string logs) {
+            Log.addLog("WARNING", "NONE", "NONE", logs);
+        }
+        public static void error(string logs) {
+            Log.addLog("ERROR", "NONE", "NONE", logs);
+
+        }
+
         public static void addLog(string logs) {
             Log.addLog("INFO", "NONE", "NONE", logs);
         }
@@ -40,13 +53,14 @@ namespace com.acgxt.bot.Utils {
             } else {
                 qq = "";
             }
+            string type2 = type;
             if (type=="INFO") {
                 type = "";
             } else {
                 type = "[" + type + "]";
             }
 
-            logs = String.Format("[INFO][{1}]{0}{2}{3}{4}", type ,DateTime.Now.ToString("hh:mm:ss"),group,qq, logs);
+            logs = String.Format("[{5}][{1}]{0}{2}{3}{4}", type ,DateTime.Now.ToString("HH:mm:ss"),group,qq, logs,type2);
             if (File.Exists(filePath)) {
                 data = readFile(filePath);
                 data += logs + "\r\n";

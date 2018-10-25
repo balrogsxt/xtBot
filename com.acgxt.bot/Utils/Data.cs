@@ -41,7 +41,6 @@ namespace com.acgxt.cqp.cs.Utils {
                 cmd.CommandText = sql;
 
 
-
                 //是否是分享群
                 long shareGroup = CQ.getShareGroup(message);
                 if (shareGroup!=0) {
@@ -53,7 +52,6 @@ namespace com.acgxt.cqp.cs.Utils {
                 {
                     long msgid = reader.GetInt16(0);
                     string msg = reader.GetString(6);
-
                     if (msg.Equals(message))
                     {
                         //Log.addLog("GET_MSGID", group, "", "成功匹配MSG:[" + msg + "]->[" + message + "]");

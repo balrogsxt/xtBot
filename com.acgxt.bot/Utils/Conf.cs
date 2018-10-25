@@ -56,8 +56,18 @@ namespace com.acgxt.cqp.cs.Utils {
             try {
                 object obj = Conf.getConfig("global.var", varName);
                 return obj.ToString();
-            }catch(Exception e) {
-                return "NULL:"+e.Message;
+            } catch (Exception e) {
+                Log.warning("获取全局词条失败:" + e.Message);
+                return "NULL:" + e.Message;
+            }
+        }
+        public static string getVar(string varName,string def) {
+            try {
+                object obj = Conf.getConfig("global.var", varName);
+                return obj.ToString();
+            } catch (Exception e) {
+                Log.warning("获取全局词条失败:" + e.Message);
+                return def;
             }
         }
 
@@ -80,6 +90,36 @@ namespace com.acgxt.cqp.cs.Utils {
             }
             return file;
         }
+        public static string getStringConfig(string path, string key, string def) {
+            object data = getConfig(path, key);
+            if (data == null) {
+                return def;
+            }
+            return data.ToString();
+        }
+        public static int getIntConfig(string path, string key, int def) {
+            object data = getConfig(path, key);
+            if (data == null) {
+                return def;
+            }
+            try {
+                return int.Parse(data.ToString());
+            } catch (Exception e) {
+                return def;
+            }
+        }
+        public static long getLongConfig(string path, string key, long def) {
+            object data = getConfig(path, key);
+            if (data == null) {
+                return def;
+            }
+            try {
+                return long.Parse(data.ToString());
+            } catch (Exception e) {
+                return def;
+            }
+        }
+
         public static object getConfig(string path,string key) {
             autoCreateUserDataDir();
             string file = parsePath(path);
@@ -105,14 +145,14 @@ namespace com.acgxt.cqp.cs.Utils {
                 return null;
             }
         }
-        public static void setConfig(string path,string key,object value) {
+        public static void setConfig(string path, string key, object value) {
             autoCreateUserDataDir();
             string file = parsePath(path);
             string json = readFile(file);
             Dictionary<object, object> map = new Dictionary<object, object>();
             if (Util.isJson(json)) {
                 JObject jo = JObject.Parse(json);
-                
+
                 JToken jt = jo;
                 foreach (JProperty jp in jt) {
                     map.Add(jp.Name, jp.Value);
@@ -121,12 +161,17 @@ namespace com.acgxt.cqp.cs.Utils {
             if (map.ContainsKey(key)) {
                 map.Remove(key);
             }
-           
+
             map.Add(key, value);
 
             string data = JsonConvert.SerializeObject(map);
-            writeFile(file,data);
-
+            writeFile(file, data);
+        }
+        public static void setConfig(string path,object value) {
+            autoCreateUserDataDir();
+            string file = parsePath(path);
+            string data = JsonConvert.SerializeObject(value);
+            writeFile(file, data);
         }
         private static void writeFile(string path,string value) {
             FileStream fs = new FileStream(path, FileMode.Create);

@@ -48,6 +48,10 @@ namespace com.acgxt.bot {
                 //获取加群申请
                 builder.RegisterType<GroupJoiningRequestReceivedMahuaEvent>().As<IGroupJoiningRequestReceivedMahuaEvent>();
 
+                builder.RegisterType<GroupPrivateMessage>().As<IPrivateMessageFromGroupReceivedMahuaEvent>();
+                builder.RegisterType<OnlinePrivateMessage>().As<IPrivateMessageFromOnlineReceivedMahuaEvent>();
+                builder.RegisterType<FirendPrivateMessage>().As<IPrivateMessageFromFriendReceivedMahuaEvent>();
+
 
             }
         }

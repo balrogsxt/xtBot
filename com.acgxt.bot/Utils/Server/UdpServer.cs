@@ -78,7 +78,6 @@ namespace com.acgxt.bot.Utils.Server {
             string token = obj["token"].ToString();
             if (token != tokenV.ToString()) {
                 throw new Exception("验证失败:token错误,无法调用接口");
-
             }
 
             if (obj.Property("fn") == null) {
@@ -101,7 +100,7 @@ namespace com.acgxt.bot.Utils.Server {
                         throw new Exception("群消息不能为空");
                     }
 
-                    api.SendGroupMessage(obj["group"].ToString(),obj["message"].ToString());
+                    api.SendGroupMessage(obj["group"].ToString(),CQ.CQString(obj["message"].ToString()));
 
                     break;
                     //发送私聊消息
@@ -113,7 +112,7 @@ namespace com.acgxt.bot.Utils.Server {
                         throw new Exception("私聊消息不能为空");
                     }
 
-                    api.SendPrivateMessage(obj["qq"].ToString(), obj["message"].ToString());
+                    api.SendPrivateMessage(obj["qq"].ToString(), CQ.CQString(obj["message"].ToString()));
 
                     break;
                 default:

@@ -19,7 +19,7 @@ namespace com.acgxt.bot {
         /// <summary>
         /// 作者名称
         /// </summary>
-        public string Author { get; set; } = "幻音丶小涛";
+        public string Author { get; set; } = "幻音い";
 
         /// <summary>
         /// 插件Id，用于唯一标识插件产品的Id，至少包含 AAA.BBB.CCC 三个部分
@@ -29,6 +29,6 @@ namespace com.acgxt.bot {
         /// <summary>
         /// 插件描述
         /// </summary>
-        public string Description { get; set; } = "XtQQBot";
+        public string Description { get; set; } = "基于七空幻音API提供自助服务等功能...API:https://api.acgxt.com";
     }
 }

@@ -1,13 +1,17 @@
-﻿using com.acgxt.bot.Utils;
+﻿using com.acgxt.bot.Core;
+using com.acgxt.bot.MahuaApis.Module;
+using com.acgxt.bot.Utils;
 using com.acgxt.bot.Utils.XtException;
 using com.acgxt.cqp.cs.Utils;
 using Newbe.Mahua;
 using Newbe.Mahua.Logging;
 using Newbe.Mahua.MahuaEvents;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -34,8 +38,277 @@ namespace com.acgxt.bot.MahuaEvents {
         private List<long> allSendGroup = new List<long>();
         //屏蔽的qq号
         private List<long> NoReplayQQ = new List<long>();
+
+        public void ProcessGroupMessage(GroupMessageReceivedContext context) {
+            try {
+                
+                //初始化
+                this.fromQQ = long.Parse(context.FromQq);
+                this.fromGroup = long.Parse(context.FromGroup);
+                this.msg = context.Message;
+                GroupMessageEvent.msgid += 1;
+                Data.api = this.api;
+
+                //载入配置项
+                this.loadConfig();
+                //验证允许群和禁止qq
+                if (this.initCheck() == false) return;
+                //直接检测是否为空
+                if (this.checkEmpty(this.msg)) return;
+                
+
+                //首次处理广告词  这里为true后将不再处理后面的数据
+                if (this.checkAds(true)){
+                    return;
+                }
+
+                try {
+                    Dictionary<string, object> modules = new Dictionary<string, object>();
+
+                    modules.Add("#查快递","KuaidiSelect");
+                    modules.Add("#快递通知", "KuaidiNotify");
+                    modules.Add("#二维码", "QrCode");
+                    modules.Add("#icon", "Favicon");
+                    modules.Add("#查装备", "DNFEqu");
+                    modules.Add("#查拍卖", "DNFAcution");
+                    modules.Add("#查", "Cha");
+                    modules.Add("查", "Cha");
+
+                    foreach (var item in modules) {
+                        try {
+                            string commandName = item.Key;
+                            object moduleName = item.Value;
+                            if (!this.isValidate(commandName)) {
+                                continue;
+                            }
+                            Type module;
+                            string classPath;
+                            if (item.Value is Type) {
+                                module = (Type)item.Value;
+                                classPath = String.Format("com.acgxt.bot.MahuaApis.GroupEvent.{0}", module.Name);
+                            } else if (item.Value is String) {
+                                classPath = String.Format("com.acgxt.bot.MahuaApis.GroupEvent.{0}", moduleName);
+                                module = Type.GetType(classPath);
+                            } else {
+                                continue;
+                            }
+
+
+
+                            try {
+                                object obj = module.Assembly.CreateInstance(classPath);
+                                MethodInfo method;
+                                //init 
+                                method = module.GetMethod("__init");
+                                object[] baseData = { item.Key, this.getValue(), this.fromGroup, this.fromQQ };
+                                method.Invoke(obj, baseData);
+
+                                method = module.GetMethod("run");
+                                object[] runData = { };
+                                method.Invoke(obj, runData);
+                            }catch(NoException e) {
+                                CQAPI.xtAddLog(LogType.status.DEBUG,"模块信息",e.Message);
+                            }
+
+                            return;
+                        }catch(Exception e) {
+                            this.sendRootMessage("使用模块:"+item.Key+"\r\n发生异常:" + e.Message+"\r\n"+e.ToString());
+                            return;
+                        }
+                    }
+                }catch(Exception e){
+                    this.sendRootMessage("发送异常:" + e.Message+"\r\n"+e.ToString());
+                    return;
+                }
+
+
+
+
+                if (this.msg.Contains("帮助")|| this.msg.Contains("help")) {
+                    string msg = this.atself()+"帮助列表";
+                    string[] helps = {
+                        "发送 \"#查快递\" 加订单号可查询快递物流信息",
+                        "发送 \"#快递通知\" 可将上次查询的快递状态实时通知",
+                        "发送 \"#二维码\" 获取输入信息的二维码图片",
+                        "发送 \"#icon\" 获取输入的Url地址Favicon图片",
+                        "发送 \"#查装备\" 加装备名称可查询DNF装备信息",
+                        "发送 \"#查拍卖\" 加拍卖商品名称可查询最近交易价格",
+                        "",
+                        "命令使用方法例如:#查快递123456",
+                        "以上命令为可以使用的功能(不包含管理员命令)",
+                        "机器人源码地址:https://git.io/fxrLl",
+                        "但不代表最新版本,反馈请联系i@acgxt.com"
+                    };
+                    for (int i=0;i<helps.Length;i++) {
+                        msg += "\r\n"+helps[i];
+                    }
+                    this.sendMessage(msg);
+                    return;
+                }
+                if (this.isValidate("#重启")) {
+                    this.restart();
+                    return;
+                }
+
+                //base
+                if (this.isValidate("setVar=")) {
+                    this.setVar();
+                    return;
+                } else
+                if (this.isValidate("send=")) {
+                    this.sendMessage(this.getValue());
+                    return;
+                } else
+                if (this.isValidate("#读图片")) {
+                        string url = CQ.getImageUrl(this.getValue());
+                        this.sendMessage(url);
+                    
+                    return;
+                }else
+
+                if (this.isValidate("#复读姬")) {
+                    this.groupNumEvent("复读姬", "reReplySize");
+                    return;
+                } else
+
+                if (this.isValidate("#复读")) {
+
+                    this.groupJilvEvent("复读", "fudu");
+                    return;
+                }else
+
+                if (this.isValidate("#盗图")) {
+                    this.groupJilvEvent("盗图", "daotu");
+                    return;
+                } else
+                if (this.isValidate("#回复")) {
+                    this.groupJilvEvent("关键字回复", "reply");
+                    return;
+                } else
+                if (this.isValidate("#聊天储存")) {
+                    this.groupToggleEvent("聊天云储存", "savemsg");
+                    return;
+                } else
+                if (this.isValidate("#图片审核")) {
+                    this.groupToggleEvent("图片审核", "imagecheck");
+                    return;
+                } else
+                if (this.isValidate("#文字审核")) {
+                    this.groupToggleEvent("文字审核", "adscheck");
+                    return;
+                } else
+
+
+
+
+                //管理员命令
+                if (this.isValidate("#添加管理员=")) {
+                    this.addAdmin();
+                    return;
+                } else if (this.isValidate("#添加群=")) {
+                    this.addGroup();
+                    return;
+                } else if (this.isValidate("#屏蔽=")) {
+                    this.addnoreply();
+                    return;
+                } else if (this.isValidate("#info")) {//查看信息
+                    this.test();
+                    return;
+                } else if (this.isValidate("#添加")) {//全局添加
+                    this.groupReplayAdd(true);
+                    return;
+                } else if (this.isValidate("#删除")) {//全局删除
+                    this.groupReplayDel(true);
+                    return;
+                } 
+   
+                
+                
+                else if (this.isValidate("添加")) {
+                    this.groupReplayAdd(false);
+                    return;
+                } else if (this.isValidate("删除")) {
+                    this.groupReplayDel(false);
+                    return;
+                }
+                this.groupReplayCheck();
+
+
+                this.checkImage();
+
+                ////请求储存消息
+                //this.saveMsg();
+
+            } catch(Exception e) {
+                Log.addLog("SYSTEM_ERROR", fromGroup.ToString(), fromQQ.ToString(),"发生异常:"+ e.Message + "=>" + e.StackTrace);
+                this.sendRootMessage(String.Format("在群{0}中发生异常\r\n{1},\r\n详情查询日志文件处理 ",fromGroup, e.Message));
+            }
+        }
+        /// <summary>
+        /// 频率限制
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        private bool ignore(string key,int s,int max) {
+            //10分钟内限定回复3次
+            //int max = 2;//3次重置,更新时间戳
+            int num = 0;
+            long liveTime = Util.getTime();
+            long time = Util.getTime();
+            object numObj = Conf.getConfig("global.group." + fromGroup + ".ignore1", key + "-" + fromQQ);
+            if (numObj != null) {
+                if (numObj.ToString().Contains("-")) {
+                    //0=>次数
+                    //1=>时间
+                    string[] arr = numObj.ToString().Split('-');
+                    try {
+                        num = int.Parse(arr[0]);
+                    } catch (Exception e) { }
+
+                    try {
+                        time = long.Parse(arr[1]);
+                    } catch (Exception e) { }
+                }
+            }
+
+
+
+            //判断储存的时间是否大于现在,大于则不执行
+            int ac = CQAPI.getAuthCode();
+
+            if (time > liveTime) {
+                CQAPI.xtAddLog(ac, LogType.status.INFO, "普通用户忽略", "存在多次使用非管理员命令【" + key + "】目前还在忽略时间内");
+                return true;
+            }
+            //自增1
+            num += 1;
+
+
+            //get success
+            if (num >= max) {
+                //重置次数
+                //增加10分钟的屏蔽
+
+                long closeTime = liveTime += 60 * 1;
+
+                string data = "0-" + closeTime;
+
+                Conf.setConfig("global.group." + fromGroup + ".ignore1", key + "-" + fromQQ, data);
+                //不执行后面操作
+                CQAPI.xtAddLog(ac, LogType.status.INFO, "普通用户忽略", "存多次使用命令【" + key + "】当前开始进行1分钟忽略");
+                return true;
+            } else {
+                string data = num + "-" + time;
+                Conf.setConfig("global.group." + fromGroup + ".ignore1", key + "-" + fromQQ, data);
+                CQAPI.xtAddLog(ac, LogType.status.INFO, "普通用户忽略", "使用多次命令【" + key + "】当前第" + num + "次," + max + "次后将进行忽略1分钟!");
+
+            }
+            return false;
+
+        }
         public GroupMessageEvent(IMahuaApi mahuaApi) {
-            this.api = mahuaApi;    
+            this.api = mahuaApi;
         }
         //检查是否为空
         private bool checkEmpty(string text) {
@@ -63,10 +336,24 @@ namespace com.acgxt.bot.MahuaEvents {
         }
         //发送当前群消息
         private void sendMessage(object data) {
+            this.sendMessage(data,"未知来源");
+        }
+        private void sendMessage(object data,string og) {
             if (this.checkEmpty(data.ToString())) {
                 return;
             }
-            this.api.SendGroupMessage(this.fromGroup.ToString(),data.ToString());
+            CQAPI.xtAddLog(LogType.status.DEBUG, "群聊消息", "[来自"+ og + "发送的数据]");
+            this.api.SendGroupMessage(this.fromGroup.ToString(), CQ.CQString(data.ToString()));
+        }
+        private void sendMessage(object data,bool isReplace) {
+            if (this.checkEmpty(data.ToString())) {
+                return;
+            }
+            string message = data.ToString();
+            if (isReplace) {
+                message = CQ.CQString(message);
+            }
+            this.api.SendGroupMessage(this.fromGroup.ToString(), message);
         }
         //清除空格
         private string clearEmpty(string text) {
@@ -147,7 +434,7 @@ namespace com.acgxt.bot.MahuaEvents {
         }
         //获取值
         private string getValue() {
-            if (this.key != null && this.key != "") return this.msg.Substring(this.key.Length); return null;
+            if (this.key != null && this.key != "") return this.msg.Substring(this.key.Length).Trim(); return null;
         }
         //验证值
         private bool isValidate(string keyword) {
@@ -209,140 +496,41 @@ namespace com.acgxt.bot.MahuaEvents {
             for (int i = 0; i < this.rootQQ.Count; i++) {
                 t1 += "\r\n" + this.rootQQ[i];
             }
-            this.sendMessage("管理员列表:" + t1);
+            this.sendMessage("管理员列表:" + t1,"test");
             string t2 = "";
             for (int i = 0; i < this.allSendGroup.Count; i++) {
                 t2 += "\r\n" + this.allSendGroup[i];
             }
-            this.sendMessage("允许群列表:" + t2);
+            this.sendMessage("允许群列表:" + t2, "test");
             string t3 = "";
             for (int i = 0; i < this.NoReplayQQ.Count; i++) {
                 t3 += "\r\n" + this.NoReplayQQ[i];
             }
-            this.sendMessage("屏蔽人列表:" + t3);
+            this.sendMessage("屏蔽人列表:" + t3, "test");
         }
         //AT当前用户
         private string atself() {
             return CQ.at(this.fromQQ);
         }
-        public void ProcessGroupMessage(GroupMessageReceivedContext context) {
-            try {
-                
-                //初始化
-                this.fromQQ = long.Parse(context.FromQq);
-                this.fromGroup = long.Parse(context.FromGroup);
-                this.msg = context.Message;
-                GroupMessageEvent.msgid += 1;
-                Data.api = this.api;
-
-                //载入配置项
-                this.loadConfig();
-                //验证允许群和禁止qq
-                if (this.initCheck() == false) return;
-                //直接检测是否为空
-                if (this.checkEmpty(this.msg)) return;
-                
-
-                //首次处理广告词  这里为true后将不再处理后面的数据
-                if (this.checkAds(true)){
-                    return;
+        private void restart() {
+            if (this.initCheckAdmin() == false) {
+                if (this.ignoreAdmin("cqp_restart") == false) {
+                    this.sendMessage(this.atself() + "您没有权限操作机器人重启功能!","restart");
                 }
-
-                if (this.isValidate("setVar=")) {
-                    this.setVar();
-                    return;
-                }else
- 
-  
-                if (this.isValidate("#读图片")) {
-                        string url = CQ.getImageUrl(this.getValue());
-                        this.sendMessage(url);
-                    
-                    return;
-                }
-
-                if (this.isValidate("#复读姬")) {
-                    this.groupNumEvent("复读姬", "reReplySize");
-                    return;
-                } else
-
-                if (this.isValidate("#复读")) {
-
-                    this.groupJilvEvent("复读", "fudu");
-                    return;
-                }else
-
-                if (this.isValidate("#盗图")) {
-                    this.groupJilvEvent("盗图", "daotu");
-                    return;
-                } else
-                if (this.isValidate("#回复")) {
-                    this.groupJilvEvent("关键字回复", "reply");
-                    return;
-                } else
-                if (this.isValidate("#聊天储存")) {
-                    this.groupToggleEvent("聊天云储存", "savemsg");
-                    return;
-                } else
-                if (this.isValidate("#图片审核")) {
-                    this.groupToggleEvent("图片审核", "imagecheck");
-                    return;
-                } else
-                if (this.isValidate("#文字审核")) {
-                    this.groupToggleEvent("文字审核", "adscheck");
-                    return;
-                } else
-
-
-
-
-                //管理员命令
-                if (this.isValidate("#添加管理员=")) {
-                    this.addAdmin();
-                    return;
-                } else if (this.isValidate("#添加群=")) {
-                    this.addGroup();
-                    return;
-                } else if (this.isValidate("#屏蔽=")) {
-                    this.addnoreply();
-                    return;
-                } else if (this.isValidate("#info")) {//查看信息
-                    this.test();
-                    return;
-                } else if (this.isValidate("#添加")) {//全局添加
-                    this.groupReplayAdd(true);
-                    return;
-                } else if (this.isValidate("#删除")) {//全局删除
-                    this.groupReplayDel(true);
-                    return;
-                } 
-   
-                
-                
-                else if (this.isValidate("添加")) {
-                    this.groupReplayAdd(false);
-                    return;
-                } else if (this.isValidate("删除")) {
-                    this.groupReplayDel(false);
-                    return;
-                }
-                this.groupReplayCheck();
-
-
-                this.checkImage();
-
-                ////请求储存消息
-                //this.saveMsg();
-
-            } catch(Exception e) {
-                Log.addLog("SYSTEM_ERROR", fromGroup.ToString(), fromQQ.ToString(),"发生异常:"+ e.Message + "=>" + e.StackTrace);
-                this.sendRootMessage(String.Format("在群{0}中发生异常\r\n{1},\r\n详情查询日志文件处理 ",fromGroup, e.Message));
+                return;
             }
+
+
+            CQRestart cqp = new CQRestart();
+            cqp.onLogger += (s) => {
+                MahuaRobotManager.Instance.CreateSession().MahuaApi.SendGroupMessage(fromGroup.ToString(), CQ.at(fromQQ) + s);
+            };
+            cqp.run(this.fromGroup.ToString(), this.fromQQ.ToString());
         }
         private void setVar() {
             if (this.initCheckAdmin() == false) {
                 if (this.ignoreAdmin("setVar") == false) {
-                    this.sendMessage(this.atself() + "您没有权限操作变量!");
+                    this.sendMessage(this.atself() + "您没有权限操作变量!", "setvar");
                 }
                 return;
             }
@@ -351,7 +539,7 @@ namespace com.acgxt.bot.MahuaEvents {
             if (val == null) return;
             string[] txt = val.Split('-');
             if (2 > txt.Length) {
-                this.sendMessage(CQ.at(this.fromQQ) + "请输入变量和变量值!命令请查看帮助");
+                this.sendMessage(CQ.at(this.fromQQ) + "请输入变量和变量值!命令请查看帮助", "setvar");
                 return;
             }
             string key = txt[0];
@@ -367,7 +555,7 @@ namespace com.acgxt.bot.MahuaEvents {
             }
             try {
                 Conf.setVar(key, value);
-                this.sendMessage(this.atself() + "设置变量成功\r\n"+key+"\r\n" + value);
+                this.sendMessage(this.atself() + "设置变量成功\r\n"+key+"\r\n" + value,false);
 
             } catch (Exception e) {
                 this.sendMessage(this.atself()+"设置发生异常:"+e.Message);
@@ -572,12 +760,26 @@ namespace com.acgxt.bot.MahuaEvents {
 
             //目前只支持单张图片验证发送,不支持gif
             var reg = @"^\[CQ:image,file=([A-Z0-9]+).(png|jpg|bmp|jpeg)\]$";
+
+
+
             MatchCollection mc = Regex.Matches(msg, reg);
             string fileName = null;
             foreach (Match m in mc) {
                 fileName = m.Groups[1] + "." + m.Groups[2];
             }
             if (fileName == null) {
+
+                var gifreg = @"\[CQ:image,file=([A-Z0-9]+).gif\]";
+                //检查是否存在gif
+                mc = Regex.Matches(msg, reg);
+                foreach (Match m in mc) {
+                    return;
+                }
+
+
+
+
                 this.saveMsg();//储存到云数据
                 return;
             }
@@ -717,7 +919,7 @@ namespace com.acgxt.bot.MahuaEvents {
                                 break;
                             default:return;
                         }
-                        if (type!=2) {
+                        if (type==1) {//只有正常图片才可以储存
                             saveMsg();//储存到云数据
                         }
 
@@ -982,12 +1184,12 @@ namespace com.acgxt.bot.MahuaEvents {
                                 this.sendMessage(CQ.at(mbgQQ));
 
                             } else {
-                                this.sendMessage(msg);
+                                this.sendMessage(msg,"复读姬跟读");
                             }
                         } catch (Exception e) {
                             //获取身份失败,默认回复
                             Log.addLog("GET_GROUP_USER", fromGroup.ToString(), fromQQ.ToString(), "获取群员信息失败:" + e.Message);
-                            this.sendMessage(msg);
+                            this.sendMessage(msg,"复读姬获取群员身份失败");
                         }
 
 
@@ -1008,7 +1210,7 @@ namespace com.acgxt.bot.MahuaEvents {
                     }
 
                 } catch(ReReplyException e) {
-                    this.sendMessage(e.getMsg());
+                    this.sendMessage(e.getMsg(),"复读姬异常");
                 }catch(Exception e) {
                     this.sendRootMessage(e.Message);
                 }
@@ -1083,7 +1285,7 @@ namespace com.acgxt.bot.MahuaEvents {
                         Random r = new Random();
 
                         var rand = r.Next(0, data.Count);
-                        this.sendMessage(data[rand]);
+                        this.sendMessage(data[rand],"关键字回复");
                         //自动回复处理完成
                         return;
                     }
@@ -1124,40 +1326,40 @@ namespace com.acgxt.bot.MahuaEvents {
                 var reg = @"^\[CQ:image,file=([A-Z0-9]+).(png|jpg|bmp|jpeg|gif)\]$";
                 MatchCollection mc = Regex.Matches(text, reg);
                 foreach (Match m in mc) {
-                    this.sendMessage(m.Value);
+                    this.sendMessage(m.Value,"概率盗图");
                     return;
                 }
 
             }
             //概率复读 3%
             if (Util.xsd_bfb(fudu)) {
-                this.sendMessage(this.msg);
+                this.sendMessage(this.msg,"概率复读");
             }
 
             //at自己,概率回复
-            if (Util.bfb(20) && this.msg.Contains(CQ.at(api.GetLoginQq()))) {
-                string replyText = "";
-                Random r = new Random();
-                int rr = r.Next(1, 4);
-                for (int i = 0; i <= rr; i++) {
-                    replyText += "喵";
+            //if (Util.bfb(5) && this.msg.Contains(CQ.at(api.GetLoginQq()))) {
+            //    string replyText = "";
+            //    Random r = new Random();
+            //    int rr = r.Next(1, 4);
+            //    for (int i = 0; i <= rr; i++) {
+            //        replyText += "喵";
 
-                    int rrrr = r.Next(0, 100);
-                    if (rrrr >= 50) {
-                        int rrr = r.Next(0, 4);
-                        for (int k = 0; k <= rr; k++) {
-                            replyText += ".";
-                        }
-                    }
-                }
-                rr = r.Next(1, 5);
-                for (int i = 0; i <= rr; i++) {
-                    replyText += "?";
-                }
-                this.sendMessage(reply);
-                return;
+            //        int rrrr = r.Next(0, 100);
+            //        if (rrrr >= 50) {
+            //            int rrr = r.Next(0, 4);
+            //            for (int k = 0; k <= rr; k++) {
+            //                replyText += ".";
+            //            }
+            //        }
+            //    }
+            //    rr = r.Next(1, 5);
+            //    for (int i = 0; i <= rr; i++) {
+            //        replyText += "?";
+            //    }
+            //    this.sendMessage(replyText, "atself");
+            //    return;
 
-            }
+            //}
 
 
 
@@ -1338,7 +1540,7 @@ namespace com.acgxt.bot.MahuaEvents {
 
             Conf.setConfig("reply.group." + from, key, list);
 
-            this.sendMessage("回复设置\r\n" + key + "\r\n" + value);
+            this.sendMessage("回复设置\r\n" + key + "\r\n" + value,false);
 
         }
 
@@ -1452,11 +1654,5 @@ namespace com.acgxt.bot.MahuaEvents {
             Conf.setConfig("global.config", "admin", this.rootQQ);
             this.sendMessage(this.atself() + "添加狗管理【" + data + "】成功!");
         }
-
-
-
-
-
-
     }
 }

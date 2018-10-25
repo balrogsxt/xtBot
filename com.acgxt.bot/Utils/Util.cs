@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -93,12 +94,54 @@ namespace com.acgxt.cqp.cs.Utils {
 
             return fileAbsPath;
         }
-
+        public static string md5(string value) {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] result = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(value));
+            return BitConverter.ToString(result).Replace("-", "").ToLower();
+        }
+        public static string getFileMD5Hash(string filePath) {
+            try {
+                FileStream file = new FileStream(filePath, System.IO.FileMode.Open);
+                MD5 md5 = new MD5CryptoServiceProvider();
+                byte[] retVal = md5.ComputeHash(file);
+                file.Close();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < retVal.Length; i++) {
+                    sb.Append(retVal[i].ToString("x2"));
+                }
+                return sb.ToString();
+            } catch (Exception ex) {
+                return null;
+            }
+        }
         public static string httpGet(string url) {
             WebClient wc = new WebClient();
             string value = Encoding.UTF8.GetString(wc.DownloadData(url));
             return value;
         }
+        public static string httpGet(string url, int timeout) {
+            try {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "GET";
+                request.ContentType = "text/html;charset=UTF-8";
+                request.UserAgent = null;
+                if (timeout != 0) {
+                    request.Timeout = timeout;
+
+                }
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                Stream myResponseStream = response.GetResponseStream();
+                StreamReader myStreamReader = new StreamReader(myResponseStream, Encoding.GetEncoding("utf-8"));
+                string retString = myStreamReader.ReadToEnd();
+                myStreamReader.Close();
+                myResponseStream.Close();
+                return retString;
+            } catch (Exception e) {
+                Log.addLog("GET请求发生异常:" + e.Message);
+                return "NULL";
+            }
+        }
+
         public static bool isJson(string json) {
             try {
                 JObject obj = JObject.Parse(json);
