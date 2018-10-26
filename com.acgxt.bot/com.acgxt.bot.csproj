@@ -105,9 +105,11 @@
     <Compile Include="MahuaApis\GroupEvent\DNFAcution.cs" />
     <Compile Include="MahuaApis\GroupEvent\DNFEqu.cs" />
     <Compile Include="MahuaApis\GroupEvent\Favicon.cs" />
+    <Compile Include="MahuaApis\GroupEvent\Help.cs" />
     <Compile Include="MahuaApis\GroupEvent\KuaidiNotify.cs" />
     <Compile Include="MahuaApis\GroupEvent\KuaidiSelect.cs" />
     <Compile Include="MahuaApis\GroupEvent\QrCode.cs" />
+    <Compile Include="MahuaApis\GroupEvent\Restart.cs" />
     <Compile Include="MahuaApis\Module\CQRestart.cs" />
     <Compile Include="MahuaApis\PrivateEvent\PrivateMessage.cs" />
     <Compile Include="MahuaEvents\FirendPrivateMessage.cs" />

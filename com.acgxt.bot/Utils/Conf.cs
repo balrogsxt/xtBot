@@ -58,7 +58,7 @@ namespace com.acgxt.cqp.cs.Utils {
                 return obj.ToString();
             } catch (Exception e) {
                 Log.warning("获取全局词条失败:" + e.Message);
-                return "NULL:" + e.Message;
+                return "["+ varName + "]";
             }
         }
         public static string getVar(string varName,string def) {

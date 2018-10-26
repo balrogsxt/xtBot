@@ -71,16 +71,27 @@ namespace com.acgxt.bot.MahuaEvents {
                     modules.Add("#icon", "Favicon");
                     modules.Add("#查装备", "DNFEqu");
                     modules.Add("#查拍卖", "DNFAcution");
-                    modules.Add("#查", "Cha");
-                    modules.Add("查", "Cha");
+                    modules.Add("#查|查", "Cha");
+                    modules.Add("帮助", "Help");
+                    modules.Add("重启", "Restart");
 
                     foreach (var item in modules) {
                         try {
                             string commandName = item.Key;
                             object moduleName = item.Value;
-                            if (!this.isValidate(commandName)) {
+                            bool isFlag = false;
+                            string[] commandList = item.Key.Split('|');
+
+                            for (int i=0;i<commandList.Length;i++) {
+                                if (this.isValidate(commandName)) {
+                                    isFlag = true;
+                                    break;
+                                }
+                            }
+                            if (!isFlag) {
                                 continue;
                             }
+                            
                             Type module;
                             string classPath;
                             if (item.Value is Type) {
@@ -93,22 +104,28 @@ namespace com.acgxt.bot.MahuaEvents {
                                 continue;
                             }
 
+                            object obj = module.Assembly.CreateInstance(classPath);
+                            MethodInfo method;
+                            //init 
+                            method = module.GetMethod("__init");
+                            object[] baseData = {
+                                    item.Key,
+                                    this.getValue(),
+                                    this.fromGroup,
+                                    this.fromQQ,
+                                    this.rootQQ,
+                                    this.debugRootQQ
+                                };
+                            method.Invoke(obj, baseData);
 
-
-                            try {
-                                object obj = module.Assembly.CreateInstance(classPath);
-                                MethodInfo method;
-                                //init 
-                                method = module.GetMethod("__init");
-                                object[] baseData = { item.Key, this.getValue(), this.fromGroup, this.fromQQ };
-                                method.Invoke(obj, baseData);
-
-                                method = module.GetMethod("run");
-                                object[] runData = { };
+                            method = module.GetMethod("run");
+                            object[] runData = { };
+                            //try {
                                 method.Invoke(obj, runData);
-                            }catch(NoException e) {
-                                CQAPI.xtAddLog(LogType.status.DEBUG,"模块信息",e.Message);
-                            }
+                            //}catch(Exception e) {
+                                //this.sendro("发生异常:" + e.Message);
+                                //CQAPI.xtAddLog(LogType.status.DEBUG,"模块信息",e.Message);
+                            //}
 
                             return;
                         }catch(Exception e) {
@@ -122,49 +139,11 @@ namespace com.acgxt.bot.MahuaEvents {
                 }
 
 
-
-
-                if (this.msg.Contains("帮助")|| this.msg.Contains("help")) {
-                    string msg = this.atself()+"帮助列表";
-                    string[] helps = {
-                        "发送 \"#查快递\" 加订单号可查询快递物流信息",
-                        "发送 \"#快递通知\" 可将上次查询的快递状态实时通知",
-                        "发送 \"#二维码\" 获取输入信息的二维码图片",
-                        "发送 \"#icon\" 获取输入的Url地址Favicon图片",
-                        "发送 \"#查装备\" 加装备名称可查询DNF装备信息",
-                        "发送 \"#查拍卖\" 加拍卖商品名称可查询最近交易价格",
-                        "",
-                        "命令使用方法例如:#查快递123456",
-                        "以上命令为可以使用的功能(不包含管理员命令)",
-                        "机器人源码地址:https://git.io/fxrLl",
-                        "但不代表最新版本,反馈请联系i@acgxt.com"
-                    };
-                    for (int i=0;i<helps.Length;i++) {
-                        msg += "\r\n"+helps[i];
-                    }
-                    this.sendMessage(msg);
-                    return;
-                }
-                if (this.isValidate("#重启")) {
-                    this.restart();
-                    return;
-                }
-
                 //base
                 if (this.isValidate("setVar=")) {
                     this.setVar();
                     return;
                 } else
-                if (this.isValidate("send=")) {
-                    this.sendMessage(this.getValue());
-                    return;
-                } else
-                if (this.isValidate("#读图片")) {
-                        string url = CQ.getImageUrl(this.getValue());
-                        this.sendMessage(url);
-                    
-                    return;
-                }else
 
                 if (this.isValidate("#复读姬")) {
                     this.groupNumEvent("复读姬", "reReplySize");
@@ -492,40 +471,25 @@ namespace com.acgxt.bot.MahuaEvents {
         }
         //获取测试信息
         private void test() {
-            string t1 = "";
-            for (int i = 0; i < this.rootQQ.Count; i++) {
-                t1 += "\r\n" + this.rootQQ[i];
-            }
-            this.sendMessage("管理员列表:" + t1,"test");
-            string t2 = "";
-            for (int i = 0; i < this.allSendGroup.Count; i++) {
-                t2 += "\r\n" + this.allSendGroup[i];
-            }
-            this.sendMessage("允许群列表:" + t2, "test");
-            string t3 = "";
-            for (int i = 0; i < this.NoReplayQQ.Count; i++) {
-                t3 += "\r\n" + this.NoReplayQQ[i];
-            }
-            this.sendMessage("屏蔽人列表:" + t3, "test");
+            //string t1 = "";
+            //for (int i = 0; i < this.rootQQ.Count; i++) {
+            //    t1 += "\r\n" + this.rootQQ[i];
+            //}
+            //this.sendMessage("管理员列表:" + t1,"test");
+            //string t2 = "";
+            //for (int i = 0; i < this.allSendGroup.Count; i++) {
+            //    t2 += "\r\n" + this.allSendGroup[i];
+            //}
+            //this.sendMessage("允许群列表:" + t2, "test");
+            //string t3 = "";
+            //for (int i = 0; i < this.NoReplayQQ.Count; i++) {
+            //    t3 += "\r\n" + this.NoReplayQQ[i];
+            //}
+            //this.sendMessage("屏蔽人列表:" + t3, "test");
         }
         //AT当前用户
         private string atself() {
             return CQ.at(this.fromQQ);
-        }
-        private void restart() {
-            if (this.initCheckAdmin() == false) {
-                if (this.ignoreAdmin("cqp_restart") == false) {
-                    this.sendMessage(this.atself() + "您没有权限操作机器人重启功能!","restart");
-                }
-                return;
-            }
-
-
-            CQRestart cqp = new CQRestart();
-            cqp.onLogger += (s) => {
-                MahuaRobotManager.Instance.CreateSession().MahuaApi.SendGroupMessage(fromGroup.ToString(), CQ.at(fromQQ) + s);
-            };
-            cqp.run(this.fromGroup.ToString(), this.fromQQ.ToString());
         }
         private void setVar() {
             if (this.initCheckAdmin() == false) {
@@ -1210,9 +1174,11 @@ namespace com.acgxt.bot.MahuaEvents {
                     }
 
                 } catch(ReReplyException e) {
-                    this.sendMessage(e.getMsg(),"复读姬异常");
+                    this.sendMessage(e.getMsg(),"复读姬触发");
+                    return;
                 }catch(Exception e) {
                     this.sendRootMessage(e.Message);
+                    //return;
                 }
                 
             }
