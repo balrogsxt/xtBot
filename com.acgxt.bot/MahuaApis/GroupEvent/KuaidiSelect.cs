@@ -15,12 +15,83 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent {
     /// 快递查询
     /// </summary>
     class KuaidiSelect : GroupEventApi,GroupEvents{
+        private Dictionary<string, string> kdList = new Dictionary<string, string>();
 
-
+        private string getKdName(string kdCode) {
+            foreach (var item in this.kdList) {
+                if (item.Key.Equals(kdCode)) {
+                    return item.Value;
+                }
+            }
+            return kdCode;
+        }
+        private void addType(string code,string name) {
+            if (!this.kdList.ContainsKey(code)) {
+                this.kdList.Add(code, name);
+            }
+        }
+        private void init_type() {
+            this.addType("shentong", "申通");
+            this.addType("ems", "EMS");
+            this.addType("shunfeng", "顺丰");
+            this.addType("yuantong", "圆通");
+            this.addType("zhongtong", "中通");
+            this.addType("rufengda", "如风达");
+            this.addType("yunda", "韵达");
+            this.addType("tiantian", "天天");
+            this.addType("huitongkuaidi", "百世");
+            this.addType("quanfengkuaidi", "全峰");
+            this.addType("debangwuliu", "德邦");
+            this.addType("zhaijisong", "宅急送");
+            this.addType("anxindakuaixi", "安信达");
+            this.addType("huitongkuaidi", "百世快递");
+            this.addType("youzhengguonei", "包裹平邮");
+            this.addType("bangsongwuliu", "邦送物流");
+            this.addType("dhl", "DHL快递");
+            this.addType("datianwuliu", "大田物流");
+            this.addType("debangwuliu", "德邦快递");
+            this.addType("ems", "EMS国内");
+            this.addType("emsguoji", "EMS国际");
+            this.addType("ems", "E邮宝");
+            this.addType("rufengda", "凡客配送");
+            this.addType("guotongkuaidi", "国通快递");
+            this.addType("youzhengguonei", "挂号信");
+            this.addType("gongsuda", "共速达");
+            this.addType("youzhengguoji", "国际小包");
+            this.addType("tiandihuayu", "华宇物流");
+            this.addType("jiajiwuliu", "佳吉快运");
+            this.addType("jiayiwuliu", "佳怡物流");
+            this.addType("canpost", "加拿大邮政");
+            this.addType("kuaijiesudi", "快捷速递");
+            this.addType("longbanwuliu", "龙邦速递");
+            this.addType("lianbangkuaidi", "联邦快递");
+            this.addType("lianhaowuliu", "联昊通");
+            this.addType("ganzhongnengda", "能达速递");
+            this.addType("quanyikuaidi", "全一快递");
+            this.addType("quanritongkuaidi", "全日通");
+            this.addType("shentong", "申通快递");
+            this.addType("shunfeng", "顺丰快递");
+            this.addType("suer", "速尔快递");
+            this.addType("tnt", "TNT快递");
+            this.addType("tiantian", "天天快递");
+            this.addType("tiandihuayu", "天地华宇");
+            this.addType("ups", "UPS快递");
+            this.addType("youzhengguonei", "邮政包裹");
+            this.addType("zhongtong", "中通快递");
+            this.addType("zhongtiewuliu", "中铁快运");
+            this.addType("zhaijisong", "宅急送");
+            this.addType("jd","京东快递");
+            this.addType("zhongyouwuliu", "中邮物流");
+        }
         public void run() {
             if (this.checkSleep(5)) return;
 
+
+
             string number = this.getValue();
+
+
+
             string kdType = String.Empty;
             string data = String.Empty;
             string getTypesApi = "https://api.acgxt.com/home/XtTools/getKuaidiTypes";
@@ -44,10 +115,33 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent {
                 }
             }
 
+            this.init_type();
+            //检查是否有分隔符
+            if (this.args.Length == 2) {
+                number = this.args[0];
+                kdType = this.args[1];
+                if (kdType.Trim().Length==0) {
+                    this.sendMessage(CQ.at(this.fromQQ) + "请输入正确的快递类型!");
+                    return;
+                }
+                //中文模糊检查
+                foreach (var item in this.kdList) {
+                    if (item.Value.ToLower().Contains(kdType.ToLower())) {
+                        kdType = item.Key;
+                        //跳出
+                        break;
+                    }
+                }
 
-
+                //this.sendMessage("开始查询:"+kdType);
+                flag = true;
+            }
 
             if (!flag) {
+               
+
+
+
                 if (!Regex.IsMatch(number, @"^[0-9a-zA-Z]+$")) {
                     this.sendMessage(CQ.at(this.fromQQ) + "请输入正确的快递单号!");
                     return;
@@ -108,7 +202,7 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent {
                 JArray list = JArray.Parse(json["data"].ToString());
 
 
-                string content = CQ.at(this.fromQQ);
+                string content = CQ.at(this.fromQQ)+ "\r\n单号:" + number + "\r\n物流:" + this.getKdName(kdType) +"";
 
                 for (int i = 0; i < list.Count; i++) {
 

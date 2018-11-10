@@ -30,7 +30,7 @@ namespace com.acgxt.bot {
 
                 //注册在“设置中心”中注册菜单，若想订阅菜单点击事件，可以查看教程。http://www.newbe.pro/docs/mahua/2017/12/24/Newbe-Mahua-Navigations.html
                 builder.RegisterType<MyMenuProvider>().As<IMahuaMenuProvider>();
-
+                
 
                 //注册群聊监听
                 builder.RegisterType<GroupMessageEvent>().As<IGroupMessageReceivedMahuaEvent>();

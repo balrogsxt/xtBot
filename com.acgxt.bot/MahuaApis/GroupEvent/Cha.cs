@@ -1,4 +1,5 @@
 ﻿using com.acgxt.bot.MahuaApis.GroupEvent.Core;
+using com.acgxt.bot.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent {
             if (this.checkSleep(5)) return;
 
 
-
+            Random rr = new Random();
             string[] msgList = {
                 "查nm查",
                 "查尼玛查 Gun!",
@@ -29,7 +30,9 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent {
                 "你什么都想查",
                 "咕咕咕",
                 "我一定去查",
-                "等会就去查"
+                "等会就去查",
+                CQ.share("https://www.baidu.com/s?wd="+this.getValue(),"查到"+this.getValue()+"的信息","已在百度找到"+this.getValue()+"的信息",""),
+                "已找到"+this.getValue()+"的"+rr.Next(1,10)+"条信息,查看详情请把头伸过来"
             };
             Random r = new Random();
 

@@ -26,7 +26,6 @@ namespace com.acgxt.bot.MahuaEvents {
             string group = context.FromGroup;
 
 
-
             if (group=="734717901") {
                 api.SendPrivateMessage("2289453456", "已加入734717901群");
                 return;

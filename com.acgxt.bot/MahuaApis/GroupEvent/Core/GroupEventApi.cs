@@ -12,9 +12,9 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent.Core{
     class GroupEventApi {
         protected IMahuaApi api;
         protected string value;
-
         protected long fromGroup;
         protected string command;
+        protected string[] args;
         protected List<long> rootQQ;
         protected long fromQQ;
         protected long debugQQ;
@@ -34,6 +34,7 @@ namespace com.acgxt.bot.MahuaApis.GroupEvent.Core{
             this.fromQQ = fromQQ;
             this.rootQQ = rootQQ;
             this.debugQQ = debugQQ;
+            this.args = value.Split(' ');
             CQAPI.xtAddLog(LogType.status.DEBUG,"RUN_MODULE","执行命令:"+command);
         }
         /// <summary>

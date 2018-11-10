@@ -35,7 +35,15 @@ namespace com.acgxt.cqp.cs.Utils {
             }
             return s;
         }
+        public static bool isRegex(string regex, string data) {
+            Regex r = new Regex(regex);
+            return r.IsMatch(data);
+        }
 
+        public static bool isRegex(string regex,string data, RegexOptions option) {
+            Regex r = new Regex(regex, option);
+            return r.IsMatch(data);
+        }
         public static bool saveBitFile(WebResponse response, string FileName) {
             bool Value = true;
             byte[] buffer = new byte[1024];

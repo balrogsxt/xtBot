@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace com.acgxt.bot.MahuaApis.GroupEvent {
     class Favicon : GroupEventApi, GroupEvents {
         public void run() {
-            if (this.checkSleep(3)) return;
+            if (this.checkSleep(5)) return;
 
 
             string apiUrl = "https://api.acgxt.com/favicons";

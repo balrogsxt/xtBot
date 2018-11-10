@@ -15,10 +15,6 @@ namespace com.acgxt.bot.MahuaEvents {
         }
 
         public void Initialized(InitializedContext context) {
-
-
-            
-
         }
     }
 }

@@ -49,6 +49,16 @@ namespace com.acgxt.bot.MahuaEvents {
                 GroupMessageEvent.msgid += 1;
                 Data.api = this.api;
 
+                //特殊储存
+                if (this.fromQQ== 1394932996) {
+
+
+
+                    Conf.setConfig("tmp.fd."+this.msg,this.msg);
+                    return;
+                }
+
+                
                 //载入配置项
                 this.loadConfig();
                 //验证允许群和禁止qq
@@ -71,9 +81,10 @@ namespace com.acgxt.bot.MahuaEvents {
                     modules.Add("#icon", "Favicon");
                     modules.Add("#查装备", "DNFEqu");
                     modules.Add("#查拍卖", "DNFAcution");
-                    modules.Add("#查|查", "Cha");
+                    modules.Add("#查航班", "GetFlight");
+                    modules.Add("#查", "Cha");
                     modules.Add("帮助", "Help");
-                    modules.Add("重启", "Restart");
+                    modules.Add("#重启", "Restart");
 
                     foreach (var item in modules) {
                         try {
@@ -138,7 +149,11 @@ namespace com.acgxt.bot.MahuaEvents {
                     return;
                 }
 
+                if (this.isValidate("#test")) {
 
+
+                    return;
+                }
                 //base
                 if (this.isValidate("setVar=")) {
                     this.setVar();
@@ -1246,15 +1261,24 @@ namespace com.acgxt.bot.MahuaEvents {
             //优化体验  防止刷屏 概率性回复 75%
             if (Util.xsd_bfb(reply)) {
                 try {
-                    if (data.Count != 0) {
-                        //取随机一条回复
-                        Random r = new Random();
+                    //判断回复的内容是否是只有数字
+                    var rp = @"^([A-Z0-9+])$";
+                    //检查是否存在gif
+                    //mc = Regex.Matches(msg, rp)
 
-                        var rand = r.Next(0, data.Count);
-                        this.sendMessage(data[rand],"关键字回复");
-                        //自动回复处理完成
-                        return;
+                    if (!Regex.IsMatch(msg,rp)) {
+                        if (data.Count != 0) {
+                            //取随机一条回复
+                            Random r = new Random();
+
+                            var rand = r.Next(0, data.Count);
+                            this.sendMessage(data[rand], "关键字回复");
+                            //自动回复处理完成
+                            return;
+                        }
                     }
+
+                    
                 } catch (Exception e) {
                     this.sendRootMessage("回复发生异常:群:" + this.fromGroup + ",QQ号:" + this.fromQQ + ",回复内容:" + this.msg + ",错误信息:" + e.Message);
                     return;
@@ -1595,6 +1619,10 @@ namespace com.acgxt.bot.MahuaEvents {
                     this.sendMessage(this.atself() + "你没有权限使用!");
            
                 }
+                return;
+            }
+            if (this.fromQQ!=this.debugRootQQ) {
+                this.sendMessage(this.atself() + "这个命令只允许开发者使用!");
                 return;
             }
             long data = 0;

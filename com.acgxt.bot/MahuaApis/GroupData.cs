@@ -98,6 +98,7 @@ namespace com.acgxt.cqp.cs.Utils {
                     }
                     if (maxSize== k) {
                         //数据相同
+                        GroupData.message[group].Clear();
                         throw new ReReplyException(Conf.getVar("复读机"));
                     }
 
@@ -160,6 +161,7 @@ namespace com.acgxt.cqp.cs.Utils {
                 log("--------------无效的词组-----------------");
                 log("--------------"+e.Message+"-------------------");
                 log("------------------end----------------");
+                
                 throw e;
                 //return null;
             }
